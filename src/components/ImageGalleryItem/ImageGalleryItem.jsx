@@ -1,14 +1,16 @@
+import { GalleryItem, GalleryItemImage } from './ImageGalleryItem.styled';
+
 export const ImageGalleryItem = ({ imageData, onImgClick }) => {
   const { largeImageURL, tags } = imageData;
   return (
-    <li
+    <GalleryItem
       onClick={e => {
         e.preventDefault();
         console.log(1);
         onImgClick({ largeImageURL, tags });
       }}
     >
-      <img src={imageData.previewURL} alt={imageData.tags} />
-    </li>
+      <GalleryItemImage src={imageData.webformatURL} alt={imageData.tags} />
+    </GalleryItem>
   );
 };

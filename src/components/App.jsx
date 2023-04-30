@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
+import { AppContainer } from './App.styled';
 
 export class App extends Component {
   state = {
@@ -13,10 +14,10 @@ export class App extends Component {
 
   render() {
     return (
-      <div>
+      <AppContainer>
         <Searchbar onSubmit={this.searchHandler} />
         <ImageGallery searchTerm={this.state.searchTerm} />
-      </div>
+      </AppContainer>
     );
   }
 }
