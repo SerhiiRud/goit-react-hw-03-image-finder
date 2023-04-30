@@ -34,21 +34,27 @@ export class ImageGallery extends Component {
       prevState.page !== this.state.page
     ) {
       try {
-        this.setState({ isLoading: true });
-        this.setState({ status: Status.PENDING });
-        prevState.searchTerm !== this.state.searchTerm
-          ? this.setState({ isLoading: true, images: [] })
-          : this.setState({ isLoading: true });
+        this.setState({
+          status: Status.PENDING,
+          isLoading: true,
+          page:
+            prevProps.searchTerm !== this.props.searchTerm
+              ? 1
+              : this.state.page,
+        });
 
         const result = await getImages(this.props.searchTerm, this.state.page);
         if (result.data.totalHits === 0) {
           return this.setState({
+            images: [],
             status: Status.REJECTED,
           });
         }
+
         this.setState({
           images:
-            prevProps.searchTerm === this.props.searchTerm
+            prevProps.searchTerm === this.props.searchTerm &&
+            this.state.page !== 1
               ? [...prevState.images, ...result.data.hits]
               : [...result.data.hits],
           status: Status.RESOLVED,
