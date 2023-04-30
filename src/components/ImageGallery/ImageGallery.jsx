@@ -13,6 +13,8 @@ const Status = {
   REJECTED: 'rejected',
 };
 
+const ERROR_MSG = 'Error happend';
+
 export class ImageGallery extends Component {
   state = {
     images: [],
@@ -21,6 +23,8 @@ export class ImageGallery extends Component {
     modalShown: false,
     imageData: { img: '', tags: '' },
     page: 1,
+    totalPages: 0,
+    error: null,
   };
 
   async componentDidUpdate(prevProps, prevState) {
@@ -31,16 +35,26 @@ export class ImageGallery extends Component {
       try {
         this.setState({ isLoading: true });
         this.setState({ status: Status.PENDING });
+        prevState.searchTerm !== this.state.searchTerm
+          ? this.setState({ isLoading: true, images: [] })
+          : this.setState({ isLoading: true });
+
         const result = await getImages(this.props.searchTerm, this.state.page);
+        if (result.data.totalHits === 0) {
+          return this.setState({
+            status: Status.REJECTED,
+          });
+        }
         this.setState({
           images:
             prevProps.searchTerm === this.props.searchTerm
               ? [...prevState.images, ...result.data.hits]
               : [...result.data.hits],
           status: Status.RESOLVED,
+          totalPages: Math.floor(result.data.totalHits / 12),
         });
       } catch (error) {
-        console.log(error);
+        this.setState({ error: ERROR_MSG });
       } finally {
         this.setState({ isLoading: false });
       }
@@ -60,12 +74,28 @@ export class ImageGallery extends Component {
   };
 
   render() {
+    const {
+      images,
+      status,
+      isLoading,
+      modalShown,
+      imageData,
+      error,
+      page,
+      totalPages,
+    } = this.state;
     return (
       <>
-        {this.state.isLoading && <Loader />}
-
+        {isLoading && <Loader />}
+        {this.state.status === 'rejected' && (
+          <div>
+            Sorry, there are no images matching your search query. Please try
+            again.
+          </div>
+        )}
+        {error && <div>{error}</div>}
         <GalleryContainer>
-          {[...this.state.images].map(image => (
+          {[...images].map(image => (
             <ImageGalleryItem
               key={image.id}
               imageData={image}
@@ -73,14 +103,11 @@ export class ImageGallery extends Component {
             ></ImageGalleryItem>
           ))}
         </GalleryContainer>
-        {this.state.images.length > 0 && this.state.status !== 'pending' && (
+        {images.length > 0 && status !== 'pending' && page <= totalPages && (
           <Button onClick={this.onLoadMore}>Load More</Button>
         )}
-        {this.state.modalShown && (
-          <Modal
-            imageData={this.state.imageData}
-            onModalClose={this.onModalClose}
-          />
+        {modalShown && (
+          <Modal modalData={imageData} onModalClose={this.onModalClose} />
         )}
       </>
     );
