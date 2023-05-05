@@ -4,6 +4,15 @@ import { createPortal } from 'react-dom';
 import { Overlay, ModalWindow } from './Modal.styled';
 
 export class Modal extends Component {
+  static propTypes = {
+    modalData: PropTypes.shape({
+      tags: PropTypes.string.isRequired,
+      largeImageURL: PropTypes.string.isRequired,
+    }),
+    onModalClose: PropTypes.func.isRequired,
+    modalInfo: PropTypes.bool.isRequired,
+  };
+
   componentDidMount() {
     window.addEventListener('keydown', this.onKeyDown);
   }
@@ -12,14 +21,14 @@ export class Modal extends Component {
     window.removeEventListener('keydown', this.onBackdropeClick);
   }
 
-  onKeyDown = e => {
-    if (e.code === `Escape`) {
+  onBackdropClick = e => {
+    if (e.target === e.currentTarget) {
       this.props.onModalClose();
     }
   };
 
-  onBackdropeClick = e => {
-    if (e.target === e.currentTarget) {
+  onKeyDown = e => {
+    if (e.code === `Escape`) {
       this.props.onModalClose();
     }
   };
@@ -27,7 +36,7 @@ export class Modal extends Component {
   render() {
     const { largeImageURL, tags } = this.props.modalData;
     return createPortal(
-      <Overlay onClick={this.onBackdropeClick}>
+      <Overlay onClick={this.onBackdropClick}>
         <ModalWindow>
           <img src={largeImageURL} alt={tags} />
         </ModalWindow>
@@ -36,11 +45,3 @@ export class Modal extends Component {
     );
   }
 }
-
-Modal.propTypes = {
-  modalData: PropTypes.shape({
-    tags: PropTypes.string.isRequired,
-    largeImageURL: PropTypes.string.isRequired,
-  }),
-  onModalClose: PropTypes.func.isRequired,
-};
