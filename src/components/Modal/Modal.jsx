@@ -18,7 +18,7 @@ export class Modal extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keydown', this.onBackdropeClick);
+    window.removeEventListener('keydown', this.onKeyDown);
   }
 
   onBackdropClick = e => {
